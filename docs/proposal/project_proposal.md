@@ -17,11 +17,11 @@ Research supports the value of monitoring and responsive maintenance. In a rural
 
 This project will develop an Oracle database system to organize water-point information and manage maintenance activities. Users will be able to record a breakdown, assign a maintenance team, track repair work, record spare parts and costs, update the water point's status after repair, and view reports. The project is an academic prototype; it will not connect to pump sensors or provide automatic real-time monitoring.
 
-Main objective: To design and implement an Oracle database system for recording water-point details and tracking maintenance activities. Specific objectives are to: (1) import and organize available water-point records; (2) record breakdown reports; (3) assign teams and track repair jobs; (4) record spare parts and repair costs; and (5) produce reports on water-point status, pending repairs, completed repairs and repair duration.
+Main objective: To design and implement an Oracle database system for recording water-point details and tracking maintenance activities. Specific objectives are to import and organize available water-point records, record breakdown reports, assign teams and track repair jobs,  record spare parts and repair costs; and  produce reports on waterpoint status, pending repairs, completed repairs and repair duration.
 
 ## 3. Data Source
 
-The initial data source is Water For People_Rwanda_2021, available through the Water Point Data Exchange (WPdx) catalogue. The catalogue reports 2,057 valid records, with report dates from 3 January 2015 to 19 June 2021. The data was collected through cluster sampling in Water For People programme districts in Rwanda, so it is not a complete or current national inventory (Water For People, 2021). These records will provide baseline water-point information; new fault and repair records will be entered into the proposed system.
+The initial data source is Water For People_Rwanda_2021, available through the Water Point Data Exchange (WPdx) catalogue. The catalogue reports 2,057 valid records, with report dates from 3 January 2015 to 19 June 2021. The data was collected through cluster sampling in Water For People programme districts in Rwanda, so it is not a complete or current national inventory (Water For People, 2021). These records will provide baseline water-point information new fault and repair records will be entered into the proposed system.
 
 WPdx describes its repository as open data. Its provider agreement states that submitted data is licensed to WPdx under Creative Commons Attribution 4.0. The project will acknowledge Water For People and WPdx and follow the applicable terms when using or sharing the dataset (Water Point Data Exchange, n.d.).
 
