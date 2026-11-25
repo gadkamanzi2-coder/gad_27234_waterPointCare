@@ -33,7 +33,7 @@ The following entities have been identified:
 
 Represents a physical water point. It stores identifying and geographical information such as the water-point identifier, coordinates, elevation and administrative location.
 
-The source dataset's `Unique ID` will be used as the candidate identifier for each water point.
+The source dataset contains both Instance Id and Unique ID. Analysis shows that these fields have identical values in all 2,061 complete records. Therefore, Instance Id will not be treated as an independent assessment identifier. In the proposed database, each assessment will receive a database-generated assessment_id and will be linked to its water point through water_point_id.
 
 ### 2. WATER_POINT_ASSESSMENTS
 
