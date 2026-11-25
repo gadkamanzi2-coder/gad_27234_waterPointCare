@@ -55,7 +55,4 @@ Our system will focus on reporting water-point faults, assigning maintenance tea
 
 The historical dataset will provide useful information about water points, while the operational system will manage new fault reports and maintenance activities.
 
-## 10. Dataset Source
-Original publisher and download URL: To be confirmed.
 
-The source information will be added after checking the original dataset reference.
