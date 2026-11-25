@@ -87,3 +87,99 @@ This is a logical data dictionary. Oracle-specific data types and column sizes w
 - Each `WATER_POINT_ASSESSMENTS` record must belong to exactly one `WATER_POINTS` record.
 
 This is a one-to-many relationship.
+
+## 5. Entity 3: FAULT_REPORTS
+
+**Purpose:** Stores problems reported about water points, including the date reported, problem description, severity and current status.
+
+| Column | Meaning | Key | Required? | Unique? |
+|---|---|---|---|---|
+| fault_report_id | Unique identifier for each fault report | PK | Yes | Yes |
+| water_point_id | Identifies the water point with the problem | FK | Yes | No |
+| reported_date | Date the problem was reported | — | Yes | No |
+| issue_description | Description of the reported problem | — | Yes | No |
+| severity | Importance or seriousness of the problem | — | Yes | No |
+| report_status | Current status of the fault report | — | Yes | No |
+| closed_date | Date the fault report was closed | — | No | No |
+
+**Relationship:** One water point can have zero or many fault reports. Each fault report must belong to exactly one water point.
+
+## 6. Entity 4: MAINTENANCE_TEAMS
+
+**Purpose:** Stores information about teams responsible for maintaining and repairing water points.
+
+| Column | Meaning | Key | Required? | Unique? |
+|---|---|---|---|---|
+| team_id | Unique identifier for each maintenance team | PK | Yes | Yes |
+| team_name | Name of the maintenance team | — | Yes | Yes |
+| contact_person | Name of the team's contact person | — | No | No |
+| contact_phone | Team contact telephone number | — | No | No |
+| coverage_area | Geographical area covered by the team | — | No | No |
+| team_status | Current operational status of the team | — | Yes | No |
+
+**Relationship:** One maintenance team can be assigned zero or many repair jobs. A repair job may have no team before assignment, but must have a team once assigned.
+
+## 7. Entity 5: REPAIR_JOBS
+
+**Purpose:** Stores repair activities created to resolve reported water-point faults. It tracks assignments, progress, completion and repair costs.
+
+| Column | Meaning | Key | Required? | Unique? |
+|---|---|---|---|---|
+| repair_job_id | Unique identifier for each repair job | PK | Yes | Yes |
+| fault_report_id | Identifies the fault report being addressed | FK | Yes | No |
+| team_id | Identifies the maintenance team assigned to the job | FK | No | No |
+| assigned_date | Date the repair job was assigned | — | No | No |
+| start_date | Date repair work started | — | No | No |
+| completion_date | Date repair work was completed | — | No | No |
+| job_status | Current status of the repair job | — | Yes | No |
+| work_description | Description of the repair work performed | — | No | No |
+| repair_cost | Total cost of the repair job | — | No | No |
+
+**Relationship:** One fault report can have zero or many repair jobs. Each repair job must belong to exactly one fault report. One maintenance team can handle zero or many repair jobs. A repair job can be unassigned initially or assigned to one maintenance team.
+
+## 8. Entity 6: SPARE_PARTS
+
+**Purpose:** Stores information about spare parts available for repairing water points. It helps the system monitor inventory and part costs.
+
+| Column | Meaning | Key | Required? | Unique? |
+|---|---|---|---|---|
+| part_id | Unique identifier for each spare part | PK | Yes | Yes |
+| part_name | Name of the spare part | — | Yes | No |
+| part_description | Additional information about the spare part | — | No | No |
+| unit_of_measure | Measurement unit, such as piece or metre | — | Yes | No |
+| unit_cost | Current cost of one unit of the spare part | — | Yes | No |
+| quantity_in_stock | Number of units currently available | — | Yes | No |
+| reorder_level | Stock quantity at which new parts should be ordered | — | No | No |
+
+**Relationship:** One spare part can appear in zero or many repair-part usage records. Each repair-part usage record must refer to exactly one spare part.
+
+## 9. Entity 7: REPAIR_PART_USAGE
+
+**Purpose:** Records the spare parts used during repair jobs. This entity connects repair jobs with spare parts and resolves the many-to-many relationship between them.
+
+| Column | Meaning | Key | Required? | Unique? |
+|---|---|---|---|---|
+| repair_job_id | Identifies the repair job that used the part | PK, FK | Yes | Part of composite PK |
+| part_id | Identifies the spare part used | PK, FK | Yes | Part of composite PK |
+| quantity_used | Number of units of the spare part used | — | Yes | No |
+| unit_cost_at_use | Cost per unit when the part was used | — | Yes | No |
+
+**Primary key:** The combination of `repair_job_id` and `part_id` forms a composite primary key.
+
+**Relationship:** One repair job can use zero or many spare parts. One spare part can be used in zero or many repair jobs. Each record in this entity must refer to exactly one repair job and one spare part.
+
+## 10. Entity 8: STATUS_AUDIT_LOG
+
+**Purpose:** Keeps a history of changes to fault-report statuses. This allows the system to track how a reported problem progresses from one status to another.
+
+| Column | Meaning | Key | Required? | Unique? |
+|---|---|---|---|---|
+| audit_id | Unique identifier for each status-change record | PK | Yes | Yes |
+| fault_report_id | Identifies the fault report whose status changed | FK | Yes | No |
+| old_status | Status before the change; blank for the first recorded status | — | No | No |
+| new_status | New status after the change | — | Yes | No |
+| changed_at | Date and time when the status changed | — | Yes | No |
+| change_note | Explanation or comment about the status change | — | No | No |
+| changed_by | Username or identifier of the person who made the change | — | No | No |
+
+**Relationship:** One fault report can have zero or many status-change records. Each status-change record must belong to exactly one fault report.
