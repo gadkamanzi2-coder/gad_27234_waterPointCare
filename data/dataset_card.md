@@ -56,3 +56,40 @@ Our system will focus on reporting water-point faults, assigning maintenance tea
 The historical dataset will provide useful information about water points, while the operational system will manage new fault reports and maintenance activities.
 
 
+## 11. Data Quality Assessment
+
+The initial data quality check found the following:
+
+| Check | Result |
+|---|---:|
+| Total records | 2,062 |
+| Total columns | 39 |
+| Total cells | 80,418 |
+| Missing cells | 10,171 |
+| Missing-cell percentage | 12.65% |
+| Completely duplicated rows | 0 |
+| Missing Unique ID values | 1 |
+| Missing Instance Id values | 1 |
+| Missing Date values | 1 |
+| Missing Geo Level 2 values | 1 |
+
+### Columns with the Most Missing Values
+
+| Column | Missing values |
+|---|---:|
+| Tech Type UnImproved | 2,057 |
+| Handpump flow rate | 1,690 |
+| Breakage frequency | 1,488 |
+| Breakage duration | 1,488 |
+| Piped liters per person per day | 781 |
+| Seconds to fill 20 liters | 409 |
+| Water-quality measurement columns | 382 each |
+
+### Other Observations
+
+- One record is missing its Unique ID, Instance Id, Date and Geo Level 2.
+- No completely duplicated rows were found.
+- No repeated non-empty Unique ID or Instance Id values were found.
+- One spelling inconsistency was found: `yes` instead of `Yes`.
+- Some missing values may be related to water-point technology or fields that do not apply to every water point.
+
