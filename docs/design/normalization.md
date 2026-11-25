@@ -197,3 +197,97 @@ The identifiable source records use a single-column candidate key, and no confir
 The final logical design will keep attributes with the entities they describe and use primary and foreign keys to connect the related tables.
 
 **Dependency removed:** No confirmed transitive dependency was identified that requires a geographical table split. The separation of `WATER_POINTS` and `WATER_POINT_ASSESSMENTS` is a system-design decision to support multiple assessments over time, rather than a claimed correction of a proven source-data dependency.
+
+## 5. Source-to-Target Field Mapping
+
+This section maps all 39 columns from the original `water_points_rwanda_2021.xlsx` dataset to the proposed WaterPointCare Rwanda database.
+
+The mapping separates physical water-point information from assessment observations. It also identifies redundant fields and conversions required during Phase IV data cleaning.
+
+### 5.1 Water-point identification and location
+
+| No. | Original Excel column | Target table | Target column | Action |
+|---:|---|---|---|---|
+| 1 | Instance Id | Not stored separately | — | Redundant: identical to `Unique ID` in all 2,061 complete records |
+| 2 | Date | WATER_POINT_ASSESSMENTS | assessment_date | Convert Excel date value to DATE |
+| 3 | Unique ID | WATER_POINTS | water_point_id | Use as the source identifier and primary key |
+| 4 | Latitude | WATER_POINTS | latitude | Convert to NUMBER |
+| 5 | Longitude | WATER_POINTS | longitude | Convert to NUMBER |
+| 6 | Elevation | WATER_POINTS | elevation | Convert to NUMBER |
+| 7 | Geo Level 1 | WATER_POINTS | geo_level_1 | Preserve geographical level |
+| 8 | Geo Level 2 | WATER_POINTS | geo_level_2 | Preserve geographical level |
+| 9 | Geo Level 3 | WATER_POINTS | geo_level_3 | Preserve geographical level |
+| 10 | Geo Level 4 | WATER_POINTS | geo_level_4 | Preserve geographical level |
+| 11 | Geo Level 5 | WATER_POINTS | geo_level_5 | Preserve geographical level |
+| 12 | Geo Level 6 | WATER_POINTS | geo_level_6 | Preserve; investigate missing values |
+| 13 | Geo Level 7 | WATER_POINTS | geo_level_7 | Preserve; investigate missing values |
+
+### 5.2 Water-point technology and assessment information
+
+| No. | Original Excel column | Target table | Target column | Action |
+|---:|---|---|---|---|
+| 14 | Level Of Service Score | WATER_POINT_ASSESSMENTS | level_of_service_score | Convert to NUMBER |
+| 15 | Level Of Service | WATER_POINT_ASSESSMENTS | level_of_service | Preserve category |
+| 16 | Has Improved Water Point (1) | WATER_POINT_ASSESSMENTS | is_improved | Convert source value to a consistent flag |
+| 17 | Tech Type Improved | WATER_POINTS | technology_type | Use as technology classification when applicable |
+| 18 | Tech Type UnImproved | WATER_POINTS | technology_type | Use as technology classification when applicable |
+| 19 | Water Point is Functional or not greater than 3 months without service | WATER_POINT_ASSESSMENTS | is_functional | Standardize functional status |
+| 20 | Water Point Source is Protected | WATER_POINT_ASSESSMENTS | source_is_protected | Standardize source protection value |
+| 21 | # of Users | WATER_POINT_ASSESSMENTS | number_of_users | Convert to NUMBER |
+| 22 | # of Users Meets Standards (1) | WATER_POINT_ASSESSMENTS | users_meet_standard | Standardize assessment result |
+| 23 | Water Point/System Out Of Service Or Broken? | WATER_POINT_ASSESSMENTS | is_broken | Standardize yes/no result |
+| 24 | Water Point/System Number Of Times Broken Is Equal to Oncer Per Month or Less | WATER_POINT_ASSESSMENTS | breakage_frequency_meets_standard | Standardize assessment result |
+| 25 | Water Point/System Number Of Days Broken Is One Day Or Less | WATER_POINT_ASSESSMENTS | breakage_duration_meets_standard | Standardize assessment result |
+| 26 | Water Point/ System Out Of Service For One Day Or Less Per Month In The Last Year | WATER_POINT_ASSESSMENTS | monthly_downtime_meets_standard | Standardize assessment result |
+| 27 | Water Is Available On The Day Of The Visit (1) | WATER_POINT_ASSESSMENTS | water_available_on_visit | Standardize yes/no result |
+| 28 | Seconds to fill 20 liters | WATER_POINT_ASSESSMENTS | seconds_to_fill_20l | Convert to NUMBER |
+| 29 | Piped or handpump? | WATER_POINTS | system_type | Preserve system classification |
+| 30 | FOR HANDPUMPS ONLY — Handpump flow rate in L/s | WATER_POINT_ASSESSMENTS | handpump_flow_rate_lps | Convert to NUMBER; applicable to handpumps |
+| 31 | FOR PIPED ONLY — Liters per person per day | WATER_POINT_ASSESSMENTS | liters_per_person_per_day | Convert to NUMBER; applicable to piped systems |
+| 32 | Quantity Of Water Available Meets Standards (1) | WATER_POINT_ASSESSMENTS | quantity_meets_standard | Standardize assessment result |
+
+### 5.3 Water-quality and overall condition information
+
+| No. | Original Excel column | Target table | Target column | Action |
+|---:|---|---|---|---|
+| 33 | E Coli Meets Standard | WATER_POINT_ASSESSMENTS | ecoli_meets_standard | Standardize assessment result |
+| 34 | Residual Chlorine Meets Standard | WATER_POINT_ASSESSMENTS | residual_chlorine_meets_standard | Standardize assessment result |
+| 35 | Bacteria Meets Standard | WATER_POINT_ASSESSMENTS | bacteria_meets_standard | Standardize assessment result |
+| 36 | Other contaminant of concern at Water Point? | WATER_POINT_ASSESSMENTS | other_contaminant_observation | Preserve observation and standardize case |
+| 37 | Other Contaminant of Concern Meets Standard | WATER_POINT_ASSESSMENTS | other_contaminant_meets_standard | Standardize assessment result |
+| 38 | Water Quality Meets Standards (1) (E-Coli, Bacteria, Residual...) | WATER_POINT_ASSESSMENTS | water_quality_meets_standard | Preserve overall water-quality result |
+| 39 | Water Point/System In Good Overall Condition and Functioning | WATER_POINT_ASSESSMENTS | overall_condition_good | Standardize assessment result |
+
+### 5.4 Fields generated by the proposed database
+
+Some target fields do not exist in the original Excel file. They will be generated by the database or entered through the WaterPointCare application.
+
+| Target table | Target column | Source |
+|---|---|---|
+| WATER_POINT_ASSESSMENTS | assessment_id | Database-generated primary key |
+| WATER_POINT_ASSESSMENTS | water_point_id | Foreign key referencing WATER_POINTS |
+| FAULT_REPORTS | report_id | Generated when a user submits a fault report |
+| MAINTENANCE_TEAMS | team_id | Generated when a maintenance team is registered |
+| REPAIR_JOBS | repair_job_id | Generated when a repair job is created |
+| SPARE_PARTS | spare_part_id | Generated when a spare part is registered |
+| REPAIR_PART_USAGE | usage_id | Generated when parts are assigned to repair jobs |
+| STATUS_AUDIT_LOG | audit_id | Generated when a report status change is recorded |
+
+The operational tables will receive records through the system's own activities. They will not be populated with invented information from the assessment dataset.
+
+### 5.5 Phase IV data-cleaning checklist
+
+The following transformations must be performed when loading the raw data into the database:
+
+1. Convert the Excel `Date` values into valid database dates.
+2. Convert numerical fields such as latitude, longitude, elevation, number of users, service score, flow rate and water quantity into appropriate numeric values.
+3. Standardize yes/no and other assessment-result values into consistent representations.
+4. Investigate the row with missing `Unique ID` and `Instance Id` before deciding whether it should be loaded into the main tables.
+5. Handle missing values according to their meaning. For example, handpump flow rate may be blank for piped systems.
+6. Standardize the observed spelling variation `yes` to `Yes`.
+7. Preserve the original Excel file unchanged in `data/raw/`.
+8. Keep the original source fields in the staging table so that the cleaning process can be checked and traced.
+
+**Source-to-target mapping conclusion**
+
+All 39 original Excel columns have been accounted for. `Instance Id` is not stored as a separate target identifier because it duplicates `Unique ID` in all 2,061 complete records. The remaining source information is mapped to `WATER_POINTS` or `WATER_POINT_ASSESSMENTS`. Additional operational tables will be populated through the WaterPointCare system.
