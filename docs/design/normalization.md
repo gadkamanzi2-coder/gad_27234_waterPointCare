@@ -165,3 +165,35 @@ The identifiable records already satisfy 2NF because the candidate key is a sing
 No table split is required to remove partial dependencies at this stage.
 
 **Dependency removed:** No partial dependency was identified because the candidate key contains only one attribute. Therefore, no split was necessary to achieve 2NF.
+
+### 4.4 Third Normal Form (3NF)
+
+A table satisfies Third Normal Form (3NF) when it is already in Second Normal Form (2NF) and contains no transitive dependencies. Non-key attributes must depend on the key, the whole key, and nothing but the key.
+
+**Analysis of the actual dataset**
+
+The dataset was examined for possible dependencies between non-key attributes.
+
+The geographical columns (`Geo Level 1` to `Geo Level 7`) describe administrative locations. However, the observed values do not establish a consistently reliable parent-to-child relationship across all geographical levels. Therefore, separate geographical reference tables will not be created based only on assumptions about these columns.
+
+The dataset also contains water-point information and assessment information in the same wide record. Although the current source has one identifiable record per `Unique ID`, the WaterPointCare Rwanda system must support multiple assessments of the same physical water point over time.
+
+For this reason, the logical database design separates the information into:
+
+**1. WATER_POINTS**
+
+Stores information that identifies and describes the physical water point, including its identifier and geographical location.
+
+**2. WATER_POINT_ASSESSMENTS**
+
+Stores observations recorded during inspections, including assessment date, service level, functionality, water availability, quantity and water-quality information. Each assessment will have its own `assessment_id` and will reference its water point using `water_point_id`.
+
+This design allows a water point to have multiple assessment records without duplicating its permanent identification and location information.
+
+**3NF decision**
+
+The identifiable source records use a single-column candidate key, and no confirmed transitive dependency requiring a geographical table split was established from the inspected values. The separation of water-point information from assessment information is adopted to support the operational and historical requirements of the proposed system.
+
+The final logical design will keep attributes with the entities they describe and use primary and foreign keys to connect the related tables.
+
+**Dependency removed:** No confirmed transitive dependency was identified that requires a geographical table split. The separation of `WATER_POINTS` and `WATER_POINT_ASSESSMENTS` is a system-design decision to support multiple assessments over time, rather than a claimed correction of a proven source-data dependency.
