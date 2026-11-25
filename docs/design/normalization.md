@@ -80,7 +80,6 @@ The following relationships are proposed:
 5. One REPAIR_JOB can use many SPARE_PARTS, and one SPARE_PART can be used in many REPAIR_JOBS. REPAIR_PART_USAGE resolves this many-to-many relationship.
 6. One FAULT_REPORT can have many STATUS_AUDIT_LOG records. Each status history record belongs to one fault report.
 
-These relationships will be reviewed and finalized during logical ERD development.
 
 ## 3.5 Entity Identification Conclusion
 
