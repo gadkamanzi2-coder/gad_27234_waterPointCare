@@ -139,3 +139,29 @@ The 2,061 identifiable records satisfy the atomic-value and unique-identifier re
 The unidentified row is flagged for investigation rather than being assigned an invented water-point identifier.
 
 **Dependency removed:** No repeating-group dependency was identified, so no table split was necessary to achieve 1NF.
+
+### 4.3 Second Normal Form (2NF)
+
+A table satisfies Second Normal Form (2NF) when it is already in First Normal Form (1NF) and every non-key attribute depends on the whole candidate key. This rule prevents partial dependencies.
+
+**Analysis of the actual dataset**
+
+The dataset uses `Unique ID` as its candidate key. Each of the 2,061 non-empty values is unique.
+
+The candidate key consists of only one column. Therefore, there cannot be a partial dependency on part of a composite key.
+
+For example, the following attributes are associated with the complete `Unique ID`:
+
+| Unique ID | Date | District | Improved Technology | System Type | Users |
+|---|---|---|---|---|---:|
+| Gicumbisurveysgp1-3FB72Q | 2015-01-01 | Gicumbi | Protected Spring | Handpump | 50 |
+| Gicumbisurveysgp5-3FBBHQ | 2015-01-01 | Gicumbi | Protected Spring | Handpump | 200 |
+| Gicumbisurveysgp5-3FBDDC | 2015-01-01 | Gicumbi | Protected Spring | Handpump | 312 |
+
+**2NF decision**
+
+The identifiable records already satisfy 2NF because the candidate key is a single column and no partial dependency is possible.
+
+No table split is required to remove partial dependencies at this stage.
+
+**Dependency removed:** No partial dependency was identified because the candidate key contains only one attribute. Therefore, no split was necessary to achieve 2NF.
