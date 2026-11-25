@@ -114,3 +114,28 @@ The raw dataset stores water-point identification, geographical details and asse
 Initial inspection did not identify a clear list of multiple values stored in a single field. Therefore, we will not invent repeating groups or claim that they exist without evidence.
 
 **Normalization objective:** Organize the information into related tables while preserving the original water-point information and supporting future fault reporting, repair assignments and maintenance history.
+
+### 4.2 First Normal Form (1NF)
+
+A relational table satisfies First Normal Form (1NF) when each column contains atomic values, each record can be uniquely identified, and there are no repeating groups.
+
+**Analysis of the actual dataset**
+
+The original dataset was examined to determine whether its fields contain multiple values or repeating groups.
+
+The analysis found that:
+
+1. The dataset contains 2,061 non-empty `Unique ID` values, and all 2,061 values are unique.
+2. The inspected text fields do not contain comma-, semicolon- or pipe-separated lists of multiple values.
+3. Each assessment attribute is stored in its own column.
+4. No repeating groups of columns were identified.
+
+However, one row has a missing `Unique ID` and `Instance Id`, although it contains some other values. This row cannot be reliably identified as a water-point record. It will be preserved in the original raw dataset and investigated during Phase IV data cleaning.
+
+**1NF decision**
+
+The 2,061 identifiable records satisfy the atomic-value and unique-identifier requirements of 1NF. No column splitting is required at this stage because the inspected fields do not contain repeating groups or multiple values in a single cell.
+
+The unidentified row is flagged for investigation rather than being assigned an invented water-point identifier.
+
+**Dependency removed:** No repeating-group dependency was identified, so no table split was necessary to achieve 1NF.
