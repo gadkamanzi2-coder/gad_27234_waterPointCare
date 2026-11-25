@@ -90,3 +90,27 @@ The WATER_POINTS and WATER_POINT_ASSESSMENTS entities will organize the historic
 The remaining six entities will support the original project objective of managing fault reports, maintenance assignments, repair activities, spare parts and maintenance history.
 
 This design provides a foundation for developing a normalized relational database that supports the WaterPointCare Rwanda system.
+
+## 4. Normalization Process
+
+### 4.1 Unnormalized Form (UNF)
+
+The original Excel dataset is treated as the Unnormalized Form (UNF), because it is the starting structure before applying normalization rules.
+
+The dataset contains 2,062 rows and 39 columns. Each row represents a water-point record containing identification, geographical location, technology, service-level, functionality, user and water-quality information.
+
+The following are three actual records from the original dataset. The table shows selected columns for readability; the original dataset retains all 39 columns.
+
+| Unique ID | Date | Latitude | Longitude | District (Geo Level 2) | Geo Level 3 | Geo Level 4 | Improved Technology | System Type | Users |
+|---|---|---:|---:|---|---|---|---|---|---:|
+| Gicumbisurveysgp1-3FB72Q | 2015-01-01 | -1.6008708 | 29.9591314 | Gicumbi | Miyove | Mubuga | Protected Spring | Handpump | 50 |
+| Gicumbisurveysgp5-3FBBHQ | 2015-01-01 | -1.6424203 | 30.2116447 | Gicumbi | Ruvune | Cyandaro | Protected Spring | Handpump | 200 |
+| Gicumbisurveysgp5-3FBDDC | 2015-01-01 | -1.5801203 | 30.0695289 | Gicumbi | Ruvune | Rebero | Protected Spring | Handpump | 312 |
+
+**UNF observation:**
+
+The raw dataset stores water-point identification, geographical details and assessment information together in one wide table. This makes it harder to manage water points separately from their assessments when the system grows.
+
+Initial inspection did not identify a clear list of multiple values stored in a single field. Therefore, we will not invent repeating groups or claim that they exist without evidence.
+
+**Normalization objective:** Organize the information into related tables while preserving the original water-point information and supporting future fault reporting, repair assignments and maintenance history.
