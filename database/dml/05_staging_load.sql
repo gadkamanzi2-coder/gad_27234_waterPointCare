@@ -21,6 +21,7 @@
 
 SET ECHO ON;
 
+
 /* 
    1. CREATE RAW STAGING TABLE
    */
@@ -78,19 +79,18 @@ CREATE TABLE STAGING_WATER_POINTS_RAW
 
     water_quality_meets_standards       VARCHAR2(4000),
     overall_condition_is_good           VARCHAR2(4000)
-);
+)
+TABLESPACE WATERPOINTCARE_DATA;
 
 
-/*
+/* 
    2. VERIFY STAGING TABLE STRUCTURE
    */
 
 DESC STAGING_WATER_POINTS_RAW;
 
 
-/* 
-   END OF SCRIPT
-   */
+
 
 PROMPT Raw staging table definition completed.
 PROMPT Import the original Excel dataset using SQL Developer.
