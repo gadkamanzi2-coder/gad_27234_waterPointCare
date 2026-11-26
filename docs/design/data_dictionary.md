@@ -418,3 +418,24 @@ This is a one-to-many relationship.
 - **Relationship:** One fault report can have zero or many status audit records. Each audit record belongs to exactly one fault report.
 - **Delete rule:** Deleting a fault report with existing audit records will be prevented to preserve its status history.
 - **Audit purpose:** This table provides a traceable history of changes instead of storing only the latest fault status.
+
+## 9. FOREIGN KEY REFERENTIAL ACTIONS
+
+The following referential actions define what happens when a parent record is deleted.
+
+| Child Table | Foreign Key | Parent Table | Delete Rule | Reason |
+|---|---|---|---|---|
+| WATER_POINT_ASSESSMENTS | water_point_id | WATER_POINTS | NO ACTION | Prevent deletion of water points with assessment history. |
+| FAULT_REPORTS | water_point_id | WATER_POINTS | NO ACTION | Prevent deletion of water points with existing fault reports. |
+| REPAIR_JOBS | fault_report_id | FAULT_REPORTS | NO ACTION | Protect repair records linked to fault reports. |
+| REPAIR_JOBS | team_id | MAINTENANCE_TEAMS | SET NULL | Preserve repair jobs when a maintenance team is deleted. |
+| REPAIR_PART_USAGE | repair_job_id | REPAIR_JOBS | CASCADE | Automatically delete dependent part-usage records when a repair job is deleted. |
+| REPAIR_PART_USAGE | part_id | SPARE_PARTS | NO ACTION | Prevent deletion of spare parts referenced in repair history. |
+| STATUS_AUDIT_LOG | fault_report_id | FAULT_REPORTS | NO ACTION | Preserve fault status audit history. |
+
+### Oracle implementation notes
+
+- **ON DELETE CASCADE:** Automatically deletes dependent child records when the parent record is deleted.
+- **ON DELETE SET NULL:** Sets the child foreign-key value to NULL when the parent is deleted. The foreign-key column must allow NULL.
+- **NO ACTION:** Oracle prevents deletion of a parent record when matching child records exist. This is the default behavior when no delete clause is specified.
+- Oracle does not support `ON UPDATE CASCADE`. Primary-key changes must be handled through controlled application or database procedures rather than automatic cascading updates.
