@@ -260,5 +260,3 @@ This is a one-to-many relationship.
 - **Indicator fields:** The `CHAR(1)` fields will store standardized `Y` or `N` values after data cleaning.
 - **Optional measurements:** Nullable fields allow missing or inapplicable measurements, such as handpump flow rate for piped systems.
 - **Numeric checks:** User counts and physical measurements must not be negative.
-
-The original raw Excel dataset will remain unchanged. Standardization and cleaning will happen during Phase IV.
