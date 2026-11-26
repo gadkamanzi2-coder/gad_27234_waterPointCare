@@ -439,3 +439,56 @@ The following referential actions define what happens when a parent record is de
 - **ON DELETE SET NULL:** Sets the child foreign-key value to NULL when the parent is deleted. The foreign-key column must allow NULL.
 - **NO ACTION:** Oracle prevents deletion of a parent record when matching child records exist. This is the default behavior when no delete clause is specified.
 - Oracle does not support `ON UPDATE CASCADE`. Primary-key changes must be handled through controlled application or database procedures rather than automatic cascading updates.
+
+## 10. DATABASE CONSTRAINT NAMING CONVENTION
+
+All database constraints will use meaningful names for easier identification, maintenance and troubleshooting.
+
+### Primary key constraints
+
+| Table | Constraint name |
+|---|---|
+| WATER_POINTS | pk_water_points |
+| WATER_POINT_ASSESSMENTS | pk_water_point_assessments |
+| FAULT_REPORTS | pk_fault_reports |
+| MAINTENANCE_TEAMS | pk_maintenance_teams |
+| REPAIR_JOBS | pk_repair_jobs |
+| SPARE_PARTS | pk_spare_parts |
+| REPAIR_PART_USAGE | pk_repair_part_usage |
+| STATUS_AUDIT_LOG | pk_status_audit_log |
+
+### Foreign key constraints
+
+| Child table | Constraint name |
+|---|---|
+| WATER_POINT_ASSESSMENTS | fk_assessments_water_points |
+| FAULT_REPORTS | fk_fault_reports_water_points |
+| REPAIR_JOBS (fault_report_id) | fk_repair_jobs_faults |
+| REPAIR_JOBS (team_id) | fk_repair_jobs_teams |
+| REPAIR_PART_USAGE (repair_job_id) | fk_usage_repair_jobs |
+| REPAIR_PART_USAGE (part_id) | fk_usage_spare_parts |
+| STATUS_AUDIT_LOG | fk_audit_fault_reports |
+
+### Unique constraints
+
+- `uq_maintenance_teams_team_name`
+- `uq_repair_part_usage_job_part`
+
+### Check constraints
+
+Check constraints will use the prefix `ck_` followed by the table and column or purpose. Examples include:
+
+- `ck_water_points_latitude`
+- `ck_water_points_longitude`
+- `ck_assessments_functional`
+- `ck_fault_reports_priority`
+- `ck_fault_reports_status`
+- `ck_repair_jobs_status`
+- `ck_repair_jobs_cost`
+- `ck_spare_parts_stock`
+- `ck_usage_quantity`
+- `ck_audit_new_status`
+
+Additional check constraints will be named using the same convention.
+
+All constraints will be explicitly named and created as ENABLED and VALIDATED.
