@@ -183,3 +183,35 @@ This is a one-to-many relationship.
 | changed_by | Username or identifier of the person who made the change | — | No | No |
 
 **Relationship:** One fault report can have zero or many status-change records. Each status-change record must belong to exactly one fault report.
+
+## Phase IV — Oracle Physical Data Dictionary
+
+### 1. WATER_POINTS
+
+**Purpose:** Stores the identity and geographical location of each physical water point. Each water point is identified using the original dataset's `Unique ID`.
+
+**Design justification:** The table separates permanent water-point identity and location from historical inspection measurements, which are stored in `WATER_POINT_ASSESSMENTS`. The natural primary key is retained because the source provides a unique identifier for each valid water point.
+
+| Column | Oracle data type | NULL? | Constraint | Description / reason |
+|---|---|---|---|---|
+| water_point_id | VARCHAR2(100) | NOT NULL | PK | Unique identifier from the source dataset. |
+| latitude | NUMBER(10,7) | NULL | CHECK (-90 to 90) | Geographic latitude of the water point. |
+| longitude | NUMBER(10,7) | NULL | CHECK (-180 to 180) | Geographic longitude of the water point. |
+| elevation | NUMBER(8,2) | NULL | — | Elevation recorded for the water point. |
+| geo_level_1 | VARCHAR2(100) | NULL | — | First geographical administrative level. |
+| geo_level_2 | VARCHAR2(100) | NULL | — | Second geographical administrative level. |
+| geo_level_3 | VARCHAR2(100) | NULL | — | Third geographical administrative level. |
+| geo_level_4 | VARCHAR2(100) | NULL | — | Fourth geographical administrative level. |
+| geo_level_5 | VARCHAR2(100) | NULL | — | Fifth geographical administrative level. |
+| geo_level_6 | VARCHAR2(100) | NULL | — | Sixth geographical administrative level. |
+| geo_level_7 | VARCHAR2(100) | NULL | — | Seventh geographical administrative level. |
+
+**Primary key:** `water_point_id`
+
+**Check constraints:**
+- `ck_water_points_latitude`: latitude must be between -90 and 90 when provided.
+- `ck_water_points_longitude`: longitude must be between -180 and 180 when provided.
+
+**Tablespace:** `WATERPOINTCARE_DATA`
+
+**Normalization:** The table stores one record per water point. Inspection measurements and maintenance events are stored separately to support multiple assessments and fault reports for the same water point.
