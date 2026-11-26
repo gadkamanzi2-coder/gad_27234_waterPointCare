@@ -260,3 +260,161 @@ This is a one-to-many relationship.
 - **Indicator fields:** The `CHAR(1)` fields will store standardized `Y` or `N` values after data cleaning.
 - **Optional measurements:** Nullable fields allow missing or inapplicable measurements, such as handpump flow rate for piped systems.
 - **Numeric checks:** User counts and physical measurements must not be negative.
+
+## 3. FAULT_REPORTS
+
+**Purpose:** Stores faults and service problems reported at water points. It supports tracking reported problems from initial reporting through repair and resolution.
+
+| Column | Oracle Data Type | Nullability | Key / Constraint |
+|---|---|---|---|
+| fault_report_id | NUMBER | NOT NULL | PK, generated identity |
+| water_point_id | VARCHAR2(100) | NOT NULL | FK |
+| report_date | DATE | NOT NULL | DEFAULT SYSDATE |
+| fault_description | VARCHAR2(1000) | NOT NULL | — |
+| fault_category | VARCHAR2(100) | NOT NULL | — |
+| priority | VARCHAR2(20) | NOT NULL | CHECK: Low, Medium, High, Critical |
+| status | VARCHAR2(30) | NOT NULL | DEFAULT 'OPEN'; CHECK: OPEN, ASSIGNED, IN_PROGRESS, RESOLVED, CLOSED |
+| reported_by | VARCHAR2(150) | NULL | — |
+| contact_information | VARCHAR2(100) | NULL | — |
+| resolved_date | DATE | NULL | — |
+
+### Keys and design decisions
+
+- **Primary Key:** `fault_report_id`, generated automatically by Oracle using an identity column.
+- **Foreign Key:** `water_point_id` references `WATER_POINTS(water_point_id)`.
+- **Relationship:** One water point can have zero or many fault reports. Each fault report belongs to exactly one water point.
+- **Default report date:** If the reporting date is not supplied, Oracle uses the current database date and time through `SYSDATE`.
+- **Default status:** New reports automatically receive the status `OPEN`.
+- **Priority constraint:** Only Low, Medium, High or Critical priorities are accepted.
+- **Status constraint:** Only OPEN, ASSIGNED, IN_PROGRESS, RESOLVED or CLOSED statuses are accepted.
+- **Historical records:** Fault reports are retained to support maintenance history and accountability.
+
+- ## 4. MAINTENANCE_TEAMS
+
+**Purpose:** Stores information about maintenance teams responsible for handling water-point faults and carrying out repair work.
+
+| Column | Oracle Data Type | Nullability | Key / Constraint |
+|---|---|---|---|
+| team_id | NUMBER | NOT NULL | PK, generated identity |
+| team_name | VARCHAR2(150) | NOT NULL | UNIQUE |
+| team_leader | VARCHAR2(150) | NULL | — |
+| contact_phone | VARCHAR2(30) | NULL | — |
+| email | VARCHAR2(150) | NULL | — |
+| service_area | VARCHAR2(150) | NULL | — |
+| team_status | VARCHAR2(20) | NOT NULL | DEFAULT 'ACTIVE'; CHECK: ACTIVE, INACTIVE |
+
+### Keys and design decisions
+
+- **Primary Key:** `team_id`, generated automatically by Oracle using an identity column.
+- **Unique Constraint:** `team_name` must be unique to prevent duplicate team names.
+- **Required fields:** `team_name` and `team_status` cannot be NULL.
+- **Default team status:** New maintenance teams automatically receive the status `ACTIVE`.
+- **Status constraint:** Only ACTIVE or INACTIVE values are accepted.
+- **Relationship:** One maintenance team can be assigned to zero or many repair jobs. Each repair job may have zero or one assigned maintenance team.
+- **Optional team assignment:** A repair job can initially exist without an assigned team.
+
+- ## 5. REPAIR_JOBS
+
+**Purpose:** Stores repair assignments and repair activities performed to resolve reported water-point faults.
+
+| Column | Oracle Data Type | Nullability | Key / Constraint |
+|---|---|---|---|
+| repair_job_id | NUMBER | NOT NULL | PK, generated identity |
+| fault_report_id | NUMBER | NOT NULL | FK |
+| team_id | NUMBER | NULL | FK |
+| assigned_date | DATE | NULL | — |
+| start_date | DATE | NULL | — |
+| completion_date | DATE | NULL | — |
+| repair_description | VARCHAR2(1000) | NULL | — |
+| repair_status | VARCHAR2(30) | NOT NULL | DEFAULT 'PENDING'; CHECK: PENDING, ASSIGNED, IN_PROGRESS, COMPLETED, CANCELLED |
+| repair_cost | NUMBER(12,2) | NULL | CHECK: >= 0 |
+| technician_name | VARCHAR2(150) | NULL | — |
+| remarks | VARCHAR2(1000) | NULL | — |
+
+### Keys and design decisions
+
+- **Primary Key:** `repair_job_id`, generated automatically by Oracle using an identity column.
+- **Foreign Key:** `fault_report_id` references `FAULT_REPORTS(fault_report_id)`.
+- **Foreign Key:** `team_id` references `MAINTENANCE_TEAMS(team_id)`.
+- **Relationship:** One fault report can have zero or many repair jobs. Each repair job belongs to exactly one fault report.
+- **Team assignment:** A maintenance team can handle zero or many repair jobs. A repair job may initially have no assigned team.
+- **Default repair status:** New repair jobs automatically receive the status `PENDING`.
+- **Status constraint:** Only PENDING, ASSIGNED, IN_PROGRESS, COMPLETED or CANCELLED values are accepted.
+- **Cost constraint:** Repair cost cannot be negative.
+- **Optional dates:**
+
+- ## 6. SPARE_PARTS
+
+**Purpose:** Stores information about spare parts used during water-point maintenance and repair activities.
+
+| Column | Oracle Data Type | Nullability | Key / Constraint |
+|---|---|---|---|
+| part_id | NUMBER | NOT NULL | PK, generated identity |
+| part_name | VARCHAR2(150) | NOT NULL | — |
+| part_description | VARCHAR2(500) | NULL | — |
+| part_category | VARCHAR2(100) | NULL | — |
+| unit_cost | NUMBER(12,2) | NULL | CHECK: >= 0 |
+| quantity_in_stock | NUMBER(10) | NOT NULL | DEFAULT 0; CHECK: >= 0 |
+| minimum_stock_level | NUMBER(10) | NOT NULL | DEFAULT 0; CHECK: >= 0 |
+| part_status | VARCHAR2(20) | NOT NULL | DEFAULT 'AVAILABLE'; CHECK: AVAILABLE, UNAVAILABLE |
+
+### Keys and design decisions
+
+- **Primary Key:** `part_id`, generated automatically by Oracle using an identity column.
+- **Required fields:** `part_name`, `quantity_in_stock`, `minimum_stock_level` and `part_status` cannot be NULL.
+- **Stock defaults:** New spare parts automatically start with zero quantity and a minimum stock level of zero.
+- **Cost constraint:** Unit cost cannot be negative.
+- **Stock constraints:** Quantity in stock and minimum stock level cannot be negative.
+- **Status constraint:** Only AVAILABLE or UNAVAILABLE values are accepted.
+- **Relationship:** One spare part can be used in zero or many repair jobs through the `REPAIR_PART_USAGE` junction table.
+- **Inventory purpose:** This table supports spare-part tracking and helps identify parts that need restocking.
+
+- ## 7. REPAIR_PART_USAGE
+
+**Purpose:** Records the spare parts used in individual repair jobs, including the quantity used and the cost at the time of use. This table resolves the many-to-many relationship between REPAIR_JOBS and SPARE_PARTS.
+
+| Column | Oracle Data Type | Nullability | Key / Constraint |
+|---|---|---|---|
+| repair_part_usage_id | NUMBER | NOT NULL | PK, generated identity |
+| repair_job_id | NUMBER | NOT NULL | FK |
+| part_id | NUMBER | NOT NULL | FK |
+| quantity_used | NUMBER(10) | NOT NULL | CHECK: > 0 |
+| unit_cost_at_use | NUMBER(12,2) | NULL | CHECK: >= 0 |
+| usage_date | DATE | NOT NULL | DEFAULT SYSDATE |
+| remarks | VARCHAR2(500) | NULL | — |
+
+### Keys and design decisions
+
+- **Primary Key:** `repair_part_usage_id`, generated automatically by Oracle using an identity column.
+- **Foreign Key:** `repair_job_id` references `REPAIR_JOBS(repair_job_id)`.
+- **Foreign Key:** `part_id` references `SPARE_PARTS(part_id)`.
+- **Unique Constraint:** The combination of `repair_job_id` and `part_id` must be unique, preventing duplicate entries for the same part in one repair job. If the same part is needed again, its total quantity can be updated.
+- **Quantity constraint:** Quantity used must be greater than zero.
+- **Cost constraint:** Unit cost at the time of use cannot be negative.
+- **Default usage date:** Oracle uses SYSDATE when the usage date is not supplied.
+- **Delete rule:** Deleting a repair job will cascade to its associated repair-part usage records. Deleting a spare part referenced by a usage record will be prevented to preserve repair history.
+
+- ## 8. STATUS_AUDIT_LOG
+
+**Purpose:** Records the history of status changes made to fault reports, supporting accountability and tracking the progress of reported faults.
+
+| Column | Oracle Data Type | Nullability | Key / Constraint |
+|---|---|---|---|
+| audit_id | NUMBER | NOT NULL | PK, generated identity |
+| fault_report_id | NUMBER | NOT NULL | FK |
+| old_status | VARCHAR2(30) | NULL | — |
+| new_status | VARCHAR2(30) | NOT NULL | — |
+| changed_at | TIMESTAMP | NOT NULL | DEFAULT SYSTIMESTAMP |
+| changed_by | VARCHAR2(150) | NULL | — |
+| change_remarks | VARCHAR2(500) | NULL | — |
+
+### Keys and design decisions
+
+- **Primary Key:** `audit_id`, generated automatically by Oracle using an identity column.
+- **Foreign Key:** `fault_report_id` references `FAULT_REPORTS(fault_report_id)`.
+- **Required field:** `new_status` cannot be NULL because every audit record must identify the new status.
+- **Default timestamp:** Oracle uses SYSTIMESTAMP when the change timestamp is not supplied.
+- **Optional old status:** `old_status` may be NULL when recording the initial status of a fault report.
+- **Relationship:** One fault report can have zero or many status audit records. Each audit record belongs to exactly one fault report.
+- **Delete rule:** Deleting a fault report with existing audit records will be prevented to preserve its status history.
+- **Audit purpose:** This table provides a traceable history of changes instead of storing only the latest fault status.
