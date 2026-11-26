@@ -1,36 +1,73 @@
 # Dataset Card – WaterPointCare Rwanda
 
 ## 1. Dataset Name
-Rwanda Water Points Dataset (2021)
 
-## 2. Dataset File
-`water_points_rwanda_2021(1).xlsx`
+Water For People Rwanda Water Points Dataset (2021)
 
-## 3. Dataset Description
-This dataset contains information about water points in Rwanda. It includes their locations, technology types, service levels, functionality, number of users, water availability, water quantity and water quality.
+## 2. Original Dataset File
 
-The dataset will help our project understand the condition of water points and provide background information for the WaterPointCare Rwanda system.
+`water_points_rwanda_2021.xlsx`
 
-## 4. Dataset Structure
+## 3. Data Source
+
+- **Provider:** Water For People
+- **Platform:** Water Point Data Exchange (WPdx)
+- **Source catalogue:** https://catalog.waterpointdata.org/datasets/wfp-rwanda-621f8339/index.html
+- **Licence:** Creative Commons Attribution 4.0 (CC BY 4.0), as stated in the WPdx provider agreement documented in the project proposal.
+- **File format:** Microsoft Excel Workbook (.xlsx)
+- **File size:** 510,801 bytes
+- **Project download date:** Not recorded in the available project files.
+
+## 4. Dataset Description
+
+This dataset contains information about water points in Rwanda. It includes geographical locations, technology types, service levels, functionality, number of users, water availability, water quantity and water quality.
+
+The dataset provides historical water-point information for the WaterPointCare Rwanda database project.
+
+## 5. Dataset Structure
+
 - Main worksheet: `Transformed Data`
-- Number of records: 2,062
+- Number of data rows: 2,062
 - Number of columns: 39
 - Unique non-empty water-point IDs: 2,061
 - Exact duplicate rows: 0
+- Total cells: 80,418
 
-## 5. Geographic Coverage
-The dataset contains water points from three districts:
+The workbook also contains an additional worksheet named `ESRI_MAPINFO_SHEET`, which is not used for the main dataset analysis.
+
+## 6. What Does One Record Represent?
+
+One row represents a water-point record containing its identification, location and associated service-level, functionality, water-quantity and water-quality observations.
+
+The source contains `Instance Id` and `Unique ID`. In all 2,061 records with non-empty identifiers, both fields have identical values. Therefore, they are not treated as two independent identifiers.
+
+The source does not provide a separate assessment identifier.
+
+## 7. Geographic Coverage
+
+The dataset contains records from three districts:
+
 - Gicumbi
 - Rulindo
 - Kicukiro
 
-The country recorded in the dataset is Rwanda.
+The country represented is Rwanda.
 
-## 6. Time Coverage
-The assessment dates range from 1 January 2015 to 17 June 2021.
+The dataset covers sampled programme districts and should not be interpreted as a complete national water-point inventory.
 
-## 7. Main Information Available
+## 8. Time Coverage
+
+The assessment dates in the downloaded workbook range from:
+
+- Earliest date: 1 January 2015
+- Latest date: 17 June 2021
+
+The date values are stored as Excel date/time serial values and will require conversion during database loading.
+
+## 9. Main Information Available
+
 The dataset contains information about:
+
 - Water-point identification
 - Geographic location and coordinates
 - Water-point technology
@@ -40,29 +77,30 @@ The dataset contains information about:
 - Breakdowns and service interruptions
 - Water availability and quantity
 - Water quality
+- Overall water-point condition
 
-## 8. Initial Data Quality Observation
-The dataset contains 10,171 missing cells, representing approximately 12.65% of all cells.
+## 10. Project Use
 
-There are no completely duplicated rows. One record has missing values across its fields, including its water-point ID.
-
-Some missing values may be normal because certain columns apply only to specific water-point technologies, such as handpumps or piped systems. These cases will be investigated during data cleaning.
-
-## 9. Project Use
 WaterPointCare Rwanda will use this dataset as historical water-point information.
 
-Our system will focus on reporting water-point faults, assigning maintenance teams, tracking repair jobs, recording spare-part usage and keeping a history of status changes.
+The proposed system will focus on:
 
-The historical dataset will provide useful information about water points, while the operational system will manage new fault reports and maintenance activities.
+1. Recording water-point details.
+2. Recording new fault reports.
+3. Assigning maintenance teams.
+4. Tracking repair jobs.
+5. Recording spare-part usage and repair costs.
+6. Maintaining a history of fault-report status changes.
 
+The historical dataset provides baseline water-point information. New operational fault and repair records will be entered through the proposed system rather than invented from the historical dataset.
 
 ## 11. Data Quality Assessment
 
-The initial data quality check found the following:
+The initial data quality assessment found the following:
 
 | Check | Result |
 |---|---:|
-| Total records | 2,062 |
+| Total data rows | 2,062 |
 | Total columns | 39 |
 | Total cells | 80,418 |
 | Missing cells | 10,171 |
@@ -81,15 +119,29 @@ The initial data quality check found the following:
 | Handpump flow rate | 1,690 |
 | Breakage frequency | 1,488 |
 | Breakage duration | 1,488 |
-| Piped liters per person per day | 781 |
+| Piped litres per person per day | 781 |
 | Seconds to fill 20 liters | 409 |
 | Water-quality measurement columns | 382 each |
 
 ### Other Observations
 
-- One record is missing its Unique ID, Instance Id, Date and Geo Level 2.
+- One row is missing its Unique ID, Instance Id, Date and Geo Level 2.
 - No completely duplicated rows were found.
 - No repeated non-empty Unique ID or Instance Id values were found.
-- One spelling inconsistency was found: `yes` instead of `Yes`.
-- Some missing values may be related to water-point technology or fields that do not apply to every water point.
+- One spelling inconsistency was identified: `yes` instead of `Yes`.
+- Some missing values may be expected because certain fields apply only to particular technologies, such as handpumps or piped systems.
+- Missing values will be investigated during Phase IV data cleaning.
 
+### Record Count Note
+
+The project proposal refers to 2,057 valid records reported in the WPdx catalogue. The downloaded workbook contains 2,062 data rows, including one row with missing identifiers.
+
+These figures refer to different counts and should not be treated as identical.
+
+## 12. Data Limitations
+
+- The dataset is historical and its latest assessment date is June 2021.
+- It covers sampled programme districts rather than the entire country.
+- Some fields contain missing values.
+- The dataset does not provide a complete operational history of fault reports, repair assignments or maintenance activities.
+- The dataset does not provide an independent assessment identifier because `Instance Id` duplicates `Unique ID` in the complete records.
