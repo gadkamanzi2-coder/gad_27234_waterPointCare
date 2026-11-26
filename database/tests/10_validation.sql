@@ -18,9 +18,9 @@
 SET ECHO ON;
 
 
-/* 
+/*
    1. VERIFY CURRENT DATABASE AND USER
-   */
+*/
 
 PROMPT Current database:
 
@@ -31,9 +31,9 @@ SELECT
 FROM DUAL;
 
 
-/* 
+/*
    2. VERIFY RECORD COUNTS
-   */
+*/
 
 PROMPT Original staging records:
 
@@ -55,7 +55,8 @@ PROMPT Invalid staging records:
 
 SELECT COUNT(*) AS invalid_records
 FROM STAGING_WATER_POINTS_CLEAN
-WHERE row_quality_status <> 'VALID';
+WHERE row_quality_status IS NULL
+   OR row_quality_status <> 'VALID';
 
 PROMPT Final water points:
 
@@ -68,9 +69,9 @@ SELECT COUNT(*) AS total_assessments
 FROM WATER_POINT_ASSESSMENTS;
 
 
-/* 
+/*
    3. COMPARE VALID STAGING RECORDS WITH FINAL TABLES
-    */
+*/
 
 SELECT
     (SELECT COUNT(*)
@@ -88,12 +89,12 @@ SELECT
 FROM DUAL;
 
 
-/* 
+/*
    4. CHECK ORPHAN ASSESSMENTS
-   */
 
-/* An orphan assessment references a water point
-   that does not exist. Expected result: 0. */
+   An orphan assessment references a water point
+   that does not exist. Expected result: 0.
+*/
 
 SELECT
     COUNT(*) AS orphan_assessments
@@ -103,9 +104,9 @@ LEFT JOIN WATER_POINTS w
 WHERE w.water_point_id IS NULL;
 
 
-/* 
+/*
    5. CHECK DUPLICATE WATER POINT IDENTIFIERS
-   */
+*/
 
 SELECT
     water_point_id,
@@ -115,9 +116,27 @@ GROUP BY water_point_id
 HAVING COUNT(*) > 1;
 
 
-/* 
+/*
+   CHECK VALID STAGING RECORDS NOT LOADED
+
+   Expected result after successful loading: 0.
+*/
+
+SELECT
+    COUNT(*) AS valid_records_not_loaded
+FROM STAGING_WATER_POINTS_CLEAN s
+WHERE s.row_quality_status = 'VALID'
+  AND NOT EXISTS
+  (
+      SELECT 1
+      FROM WATER_POINTS w
+      WHERE w.water_point_id = TRIM(s.unique_id)
+  );
+
+
+/*
    6. CHECK REQUIRED VALUES
-   */
+*/
 
 SELECT
     COUNT(*) AS missing_water_point_ids
@@ -140,9 +159,9 @@ FROM WATER_POINT_ASSESSMENTS
 WHERE water_point_id IS NULL;
 
 
-/* 
+/*
    7. CHECK GEOGRAPHICAL DATA
-   */
+*/
 
 SELECT
     COUNT(*) AS invalid_latitudes
@@ -157,9 +176,9 @@ WHERE longitude IS NOT NULL
   AND (longitude < -180 OR longitude > 180);
 
 
-/* 
+/*
    8. CHECK FOREIGN KEY RELATIONSHIPS
-   */
+*/
 
 PROMPT Checking foreign-key relationships:
 
@@ -261,9 +280,9 @@ WHERE NOT EXISTS
 );
 
 
-/* 
+/*
    9. VERIFY ALL CONSTRAINTS
- */
+*/
 
 PROMPT Constraint status:
 
@@ -288,8 +307,10 @@ WHERE table_name IN
 ORDER BY table_name, constraint_type, constraint_name;
 
 
-/* Show any constraints that are not enabled or validated.
-   Expected result: no rows. */
+/*
+   Show any constraints that are not enabled or validated.
+   Expected result: no rows.
+*/
 
 SELECT
     table_name,
@@ -315,35 +336,36 @@ AND
 );
 
 
-/* 
-   10. TEST REPORTING VIEW */
+/*
+   10. TEST REPORTING VIEW
+*/
 
 SELECT *
 FROM vw_fault_repair_report
 FETCH FIRST 10 ROWS ONLY;
 
 
-/* 
+/*
    11. TEST SUMMARY VIEW
-   */
+*/
 
 SELECT *
 FROM vw_fault_status_summary
 ORDER BY status, priority;
 
 
-/* 
+/*
    12. TEST READ-ONLY DIRECTORY VIEW
-   */
+*/
 
 SELECT *
 FROM vw_water_point_directory
 FETCH FIRST 10 ROWS ONLY;
 
 
-/* 
+/*
    13. SUMMARY BY GEOGRAPHICAL AREA
-    */
+*/
 
 SELECT
     geo_level_2 AS district,
@@ -353,9 +375,9 @@ GROUP BY geo_level_2
 ORDER BY total_water_points DESC;
 
 
-/* 
+/*
    14. ASSESSMENT SUMMARY
-   */
+*/
 
 SELECT
     level_of_service,
@@ -363,7 +385,6 @@ SELECT
 FROM WATER_POINT_ASSESSMENTS
 GROUP BY level_of_service
 ORDER BY total_assessments DESC;
-
 
 
 PROMPT WaterPointCare validation checks completed.
