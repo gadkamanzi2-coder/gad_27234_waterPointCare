@@ -1,4 +1,6 @@
 
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
+
 /*
     Project      : WaterPointCare Rwanda
     Course       : INSY 8311 - Database Development with PL/SQL
@@ -11,9 +13,7 @@
     records from the Rwanda water-point Excel dataset.
 */
 
--- =========================================================
 -- 1. VERIFY DATABASE AND USER
--- =========================================================
 
 SELECT USER AS current_user FROM dual;
 
@@ -21,9 +21,7 @@ SELECT SYS_CONTEXT('USERENV', 'CON_NAME') AS current_container
 FROM dual;
 
 
--- =========================================================
 -- 2. INSERT MAINTENANCE TEAMS
--- =========================================================
 
 INSERT INTO maintenance_teams
     (team_name, team_leader, contact_phone, email,
@@ -50,9 +48,7 @@ VALUES
      'demo.team3@example.com', 'Rulindo', 'ACTIVE');
 
 
--- =========================================================
 -- 3. INSERT SPARE PARTS
--- =========================================================
 
 INSERT INTO spare_parts
     (part_name, part_description, part_category,
@@ -95,9 +91,7 @@ VALUES
      'Valve', 6000, 25, 5, 'AVAILABLE');
 
 
--- =========================================================
 -- 4. INSERT FAULT REPORTS
--- =========================================================
 
 INSERT INTO fault_reports
     (water_point_id, report_date, fault_description,
@@ -150,9 +144,7 @@ VALUES
      'Demo Reporter 5', '0780000015');
 
 
--- =========================================================
 -- 5. INSERT REPAIR JOBS
--- =========================================================
 
 INSERT INTO repair_jobs
     (fault_report_id, team_id, assigned_date, start_date,
@@ -212,9 +204,7 @@ WHERE f.water_point_id = 'Gicumbisurveys-9E8SRB'
   AND t.team_name = 'Kigali Water Maintenance Team';
 
 
--- =========================================================
 -- 6. INSERT REPAIR PART USAGE
--- =========================================================
 
 INSERT INTO repair_part_usage
     (repair_job_id, part_id, quantity_used,
@@ -253,9 +243,7 @@ WHERE r.repair_description =
   AND p.part_name = 'PVC Pipe';
 
 
--- =========================================================
 -- 7. INSERT STATUS AUDIT HISTORY
--- =========================================================
 
 INSERT INTO status_audit_log
     (fault_report_id, old_status, new_status,
@@ -285,16 +273,12 @@ FROM fault_reports
 WHERE water_point_id = 'Gicumbisurveys-9E7X58';
 
 
--- =========================================================
 -- 8. COMMIT DEMONSTRATION DATA
--- =========================================================
 
 COMMIT;
 
 
--- =========================================================
 -- 9. VERIFY INSERTED RECORDS
--- =========================================================
 
 SELECT 'FAULT_REPORTS' AS table_name, COUNT(*) AS total
 FROM fault_reports
